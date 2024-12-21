@@ -94,3 +94,26 @@ class WinPipeEnd(PipeEndBase):
         :param named_pipe: The named pipe instance.
         """
         win32file.DeleteFile(named_pipe.get_path())
+
+
+class WriteWinPipeEnd(WinPipeEnd):
+    def write(self, data: bytes) -> None:
+        """
+        Write to the pipe.
+
+        :param data: The data to write to the pipe.
+        """
+        win32file.WriteFile(self._win_pipe_end_handle, data)
+        win32file.FlushFileBuffers(self._win_pipe_end_handle)
+
+
+class ReadWinPipeEnd(WinPipeEnd):
+    def read(self) -> bytes:
+        """
+        Reads from the pipe.
+        """
+        num_bytes_read, data = win32file.ReadFile(self._win_pipe_end_handle, 1)
+        if isinstance(data, str):
+            return data.encode("utf-8")
+        else:
+            return data

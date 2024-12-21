@@ -144,11 +144,11 @@ class WritePipeEndBase(PipeEndBase):
         return super().__init__(named_pipe, "w")
 
     @abstractmethod
-    def write(self, string: str) -> None:
+    def write(self, data: bytes) -> None:
         """
         Write to the pipe.
 
-        :param string: The string to write to the pipe.
+        :param data: The data to write to the pipe.
         """
 
 
@@ -171,7 +171,7 @@ class ReadPipeEndBase(PipeEndBase):
         return super().__init__(named_pipe, "r")
 
     @abstractmethod
-    def read(self) -> str:
+    def read(self) -> bytes:
         """
         Read from the pipe.
 
