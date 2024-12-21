@@ -27,27 +27,6 @@ def pipe_open_win(path):
     return pipe
 
 
-def mkfifo_win(path):
-    path_win = ("\\\\.\\pipe\\" + path).replace("/", "\\")
-
-    sa = pywintypes.SECURITY_ATTRIBUTES()
-    sa.bInheritHandle = 1
-    sa.SECURITY_DESCRIPTOR = pywintypes.SECURITY_DESCRIPTOR()
-
-    pipe = win32pipe.CreateNamedPipe(
-        path_win,
-        win32pipe.PIPE_ACCESS_DUPLEX,
-        win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_READMODE_BYTE | win32pipe.PIPE_WAIT,
-        1,
-        65536,
-        65536,
-        300,
-        sa,
-    )
-    print("Created named pipe " + path_win + f" handle={pipe}")
-    return pipe
-
-
 def pipe_read_line_win(pipe):
     line = ""
     while True:
@@ -59,6 +38,3 @@ def pipe_read_line_win(pipe):
             break
         line += char
     return line
-
-def pipe_close_win():
-# win32file.CloseHandle(c2s)
