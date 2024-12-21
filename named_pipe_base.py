@@ -79,8 +79,7 @@ class PipeEndBase(ABC):
 
         Opens and returns the pipe end instance.
         """
-        self.open()
-        return self
+        return self.open()
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """
@@ -90,7 +89,7 @@ class PipeEndBase(ABC):
         """
         return self.close()
 
-    def open(self) -> None:
+    def open(self) -> PipeEndBase:
         """Open the named pipe in the specified mode."""
         return self._open(self._named_pipe, self._mode)
 
@@ -99,7 +98,7 @@ class PipeEndBase(ABC):
         return self._close(self._named_pipe)
 
     @abstractmethod
-    def _open(self, named_pipe: NamedPipeBase, mode: str) -> None:
+    def _open(self, named_pipe: NamedPipeBase, mode: str) -> PipeEndBase:
         """
         Open the named pipe in read or write mode.
 
