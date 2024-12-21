@@ -37,6 +37,12 @@ class NamedPipeBase(ABC):
         return self.unlink()
 
     @abstractmethod
+    def get_path(self) -> str:
+        """
+        Get the path of the NamedPipe.
+        """
+
+    @abstractmethod
     def mkfifo(self) -> NamedPipeBase:
         """
         Create the named pipe.
