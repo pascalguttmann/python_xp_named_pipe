@@ -103,8 +103,13 @@ class WriteWinPipeEnd(WinPipeEnd):
 
         :param data: The data to write to the pipe.
         """
-        win32file.WriteFile(self._win_pipe_end_handle, data)
-        win32file.FlushFileBuffers(self._win_pipe_end_handle)
+        win32file.WriteFile(
+            self._win_pipe_end_handle,  # pyright: ignore[reportArgumentType]
+            data,
+        )
+        win32file.FlushFileBuffers(
+            self._win_pipe_end_handle  # pyright: ignore[reportArgumentType]
+        )
 
 
 class ReadWinPipeEnd(WinPipeEnd):
@@ -112,7 +117,10 @@ class ReadWinPipeEnd(WinPipeEnd):
         """
         Reads from the pipe.
         """
-        num_bytes_read, data = win32file.ReadFile(self._win_pipe_end_handle, 1)
+        num_bytes_read, data = win32file.ReadFile(
+            self._win_pipe_end_handle,  # pyright: ignore[reportArgumentType]
+            65536,
+        )
         if isinstance(data, str):
             return data.encode("utf-8")
         else:
