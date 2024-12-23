@@ -29,6 +29,12 @@ class WinNamedPipe(NamedPipeBase):
     def strip_winprefix(cls, path: str):
         return path.removeprefix(cls.winprefix)
 
+    def is_windows_named_pipe_server_process(self) -> bool:
+        return hasattr(self, "_win_pipe_handle")
+
+    def get_pipe_handle(self) -> int:
+        return self._win_pipe_handle
+
     def get_path(self) -> str:
         """
         Get the path of the WinNamedPipe, which is prefixed by self.winprefix
@@ -59,6 +65,7 @@ class WinNamedPipe(NamedPipeBase):
 
     def unlink(self) -> None:
         win32file.CloseHandle(self._win_pipe_handle)
+        del self._win_pipe_handle
         return
 
 
@@ -70,24 +77,29 @@ class WinPipeEnd(PipeEndBase):
         :param named_pipe: The named pipe instance.
         :param mode: The mode to open the pipe in (e.g., 'r' or 'w').
         """
-        if mode == "w":
-            desired_access = win32file.GENERIC_WRITE
-        elif mode == "r":
-            desired_access = win32file.GENERIC_READ
+        if named_pipe.is_windows_named_pipe_server_process():  # pyright: ignore
+            pipe_handle = named_pipe.get_pipe_handle()  # pyright: ignore
+            pipe = win32pipe.ConnectNamedPipe(pipe_handle, None)
         else:
-            raise OSError(
-                87, f"Opening mode of WinNamedPipe should be 'r' or 'w', but is {mode}"
-            )
+            if mode == "w":
+                desired_access = win32file.GENERIC_WRITE
+            elif mode == "r":
+                desired_access = win32file.GENERIC_READ
+            else:
+                raise OSError(
+                    87,
+                    f"Opening mode of WinNamedPipe should be 'r' or 'w', but is {mode}",
+                )
 
-        pipe = win32file.CreateFile(
-            named_pipe.get_path(),
-            desired_access,
-            0,
-            None,
-            win32file.OPEN_EXISTING,
-            0,
-            None,
-        )
+            pipe = win32file.CreateFile(
+                named_pipe.get_path(),
+                desired_access,
+                0,
+                None,
+                win32file.OPEN_EXISTING,
+                0,
+                None,
+            )
 
         self._win_pipe_end_handle = pipe
         return self
@@ -98,7 +110,11 @@ class WinPipeEnd(PipeEndBase):
 
         :param named_pipe: The named pipe instance.
         """
-        win32file.DeleteFile(named_pipe.get_path())
+        if named_pipe.is_windows_named_pipe_server_process():  # pyright: ignore
+            pipe_handle = named_pipe.get_pipe_handle()  # pyright: ignore
+            win32pipe.DisconnectNamedPipe(pipe_handle)
+        else:
+            win32file.DeleteFile(named_pipe.get_path())
 
 
 class WriteWinPipeEnd(WinPipeEnd, WritePipeEndBase):
