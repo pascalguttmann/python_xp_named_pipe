@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from named_pipe_base import NamedPipeBase, PipeEndBase
+from named_pipe_base import (
+    NamedPipeBase,
+    PipeEndBase,
+    ReadPipeEndBase,
+    WritePipeEndBase,
+)
 
 import win32pipe
 import win32file
@@ -96,7 +101,7 @@ class WinPipeEnd(PipeEndBase):
         win32file.DeleteFile(named_pipe.get_path())
 
 
-class WriteWinPipeEnd(WinPipeEnd):
+class WriteWinPipeEnd(WinPipeEnd, WritePipeEndBase):
     def write(self, data: bytes) -> None:
         """
         Write to the pipe.
@@ -112,7 +117,7 @@ class WriteWinPipeEnd(WinPipeEnd):
         )
 
 
-class ReadWinPipeEnd(WinPipeEnd):
+class ReadWinPipeEnd(WinPipeEnd, ReadPipeEndBase):
     def read(self) -> bytes:
         """
         Reads from the pipe.
