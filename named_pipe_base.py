@@ -69,14 +69,17 @@ class PipeEndBase(ABC):
     This class provides a basic structure for opening and closing.
     """
 
-    def __init__(self, named_pipe: NamedPipeBase, mode: str) -> None:
+    def __init__(self, named_pipe: NamedPipeBase | str, mode: str) -> None:
         """
         Initialize a pipe end.
 
         :param named_pipe: The named pipe which should be used for opening and closing.
         :param mode: The mode to open the pipe in (e.g., 'r' or 'w').
         """
-        self._named_pipe = named_pipe
+        if isinstance(named_pipe, str):
+            self._named_pipe = self._create_named_pipe_from_path(named_pipe)
+        else:
+            self._named_pipe = named_pipe
         self._mode = mode
 
     def __enter__(self):
@@ -124,6 +127,18 @@ class PipeEndBase(ABC):
         :param named_pipe: The named pipe instance.
         """
 
+    @abstractmethod
+    def _create_named_pipe_from_path(self, path: str) -> NamedPipeBase:
+        """
+        Create a named pipe from a path.
+
+        This method should be implemented by subclasses to allow convenience
+        creation of pipe ends on the client side, not responsible for creating
+        the named pipe resource with the operating system.
+
+        :param path: The path to the named pipe.
+        """
+
 
 PipeEnd = TypeVar("PipeEnd", bound=PipeEndBase)
 
@@ -135,7 +150,7 @@ class WritePipeEndBase(PipeEndBase):
     This class provides a basic structure for writing to named pipes.
     """
 
-    def __init__(self, named_pipe: NamedPipeBase) -> None:
+    def __init__(self, named_pipe: NamedPipeBase | str) -> None:
         """
         Initialize a write pipe end.
 
@@ -162,7 +177,7 @@ class ReadPipeEndBase(PipeEndBase):
     This class provides a basic structure for reading from named pipes.
     """
 
-    def __init__(self, named_pipe: NamedPipeBase) -> None:
+    def __init__(self, named_pipe: NamedPipeBase | str) -> None:
         """
         Initialize a read pipe end.
 

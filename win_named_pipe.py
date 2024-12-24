@@ -116,6 +116,14 @@ class WinPipeEnd(PipeEndBase):
         else:
             win32file.CloseHandle(pipe)
 
+    def _create_named_pipe_from_path(self, path: str) -> NamedPipeBase:
+        """
+        Create a named pipe from a path.
+
+        :param path: The path to the named pipe.
+        """
+        return WinNamedPipe(path)
+
 
 class WriteWinPipeEnd(WinPipeEnd, WritePipeEndBase):
     def write(self, data: bytes) -> None:
