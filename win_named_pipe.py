@@ -78,8 +78,8 @@ class WinPipeEnd(PipeEndBase):
         :param mode: The mode to open the pipe in (e.g., 'r' or 'w').
         """
         if named_pipe.is_windows_named_pipe_server_process():  # pyright: ignore
-            pipe_handle = named_pipe.get_pipe_handle()  # pyright: ignore
-            pipe = win32pipe.ConnectNamedPipe(pipe_handle, None)
+            pipe = named_pipe.get_pipe_handle()  # pyright: ignore
+            win32pipe.ConnectNamedPipe(pipe, None)
         else:
             if mode == "w":
                 desired_access = win32file.GENERIC_WRITE
@@ -110,11 +110,11 @@ class WinPipeEnd(PipeEndBase):
 
         :param named_pipe: The named pipe instance.
         """
+        pipe = self._win_pipe_end_handle
         if named_pipe.is_windows_named_pipe_server_process():  # pyright: ignore
-            pipe_handle = named_pipe.get_pipe_handle()  # pyright: ignore
-            win32pipe.DisconnectNamedPipe(pipe_handle)
+            win32pipe.DisconnectNamedPipe(pipe)
         else:
-            win32file.DeleteFile(named_pipe.get_path())
+            win32file.CloseHandle(pipe)
 
 
 class WriteWinPipeEnd(WinPipeEnd, WritePipeEndBase):
