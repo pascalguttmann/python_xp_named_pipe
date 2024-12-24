@@ -73,7 +73,6 @@ class WritePipeEnd(PipeEnd, WritePipeEndBase):
         :param data: The data to write to the pipe.
         """
         num_bytes_written = os.write(self._pipe_end_handle, data)
-        os.fsync(self._pipe_end_handle)
 
 
 class ReadPipeEnd(PipeEnd, ReadPipeEndBase):
