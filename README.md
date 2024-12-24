@@ -9,7 +9,7 @@ with Pythons Context Management Protocol.
 Supported platforms:
 
 - [x] win32
-- [ ] linux
+- [x] linux
 
 # API Description
 
