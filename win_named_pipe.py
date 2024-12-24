@@ -12,7 +12,7 @@ import win32file
 import pywintypes
 
 
-class WinNamedPipe(NamedPipeBase):
+class NamedPipe(NamedPipeBase):
     """Windows named pipes creation via Win32API."""
 
     winprefix = "\\\\.\\pipe\\"
@@ -36,13 +36,9 @@ class WinNamedPipe(NamedPipeBase):
         return self._win_pipe_handle
 
     def get_path(self) -> str:
-        """
-        Get the path of the WinNamedPipe, which is prefixed by self.winprefix
-        to allow arbitrary pipe names.
-        """
         return self.path_to_winpath(self.prepend_winprefix(self._path))
 
-    def mkfifo(self) -> WinNamedPipe:
+    def mkfifo(self) -> NamedPipe:
         sa = pywintypes.SECURITY_ATTRIBUTES()
         sa.bInheritHandle = 1
         sa.SECURITY_DESCRIPTOR = pywintypes.SECURITY_DESCRIPTOR()
@@ -69,8 +65,8 @@ class WinNamedPipe(NamedPipeBase):
         return
 
 
-class WinPipeEnd(PipeEndBase):
-    def _open(self, named_pipe: NamedPipeBase, mode: str) -> WinPipeEnd:
+class PipeEnd(PipeEndBase):
+    def _open(self, named_pipe: NamedPipeBase, mode: str) -> PipeEnd:
         """
         Open the named pipe in read or write mode.
 
@@ -88,7 +84,7 @@ class WinPipeEnd(PipeEndBase):
             else:
                 raise OSError(
                     87,
-                    f"Opening mode of WinNamedPipe should be 'r' or 'w', but is {mode}",
+                    f"Opening mode of NamedPipe should be 'r' or 'w', but is {mode}",
                 )
 
             pipe = win32file.CreateFile(
@@ -112,9 +108,9 @@ class WinPipeEnd(PipeEndBase):
         """
         pipe = self._win_pipe_end_handle
         if named_pipe.is_windows_named_pipe_server_process():  # pyright: ignore
-            win32pipe.DisconnectNamedPipe(pipe)
+            win32pipe.DisconnectNamedPipe(pipe)  # pyright: ignore
         else:
-            win32file.CloseHandle(pipe)
+            win32file.CloseHandle(pipe)  # pyright: ignore
 
     def _create_named_pipe_from_path(self, path: str) -> NamedPipeBase:
         """
@@ -122,10 +118,10 @@ class WinPipeEnd(PipeEndBase):
 
         :param path: The path to the named pipe.
         """
-        return WinNamedPipe(path)
+        return NamedPipe(path)
 
 
-class WriteWinPipeEnd(WinPipeEnd, WritePipeEndBase):
+class WritePipeEnd(PipeEnd, WritePipeEndBase):
     def write(self, data: bytes) -> None:
         """
         Write to the pipe.
@@ -141,7 +137,7 @@ class WriteWinPipeEnd(WinPipeEnd, WritePipeEndBase):
         )
 
 
-class ReadWinPipeEnd(WinPipeEnd, ReadPipeEndBase):
+class ReadPipeEnd(PipeEnd, ReadPipeEndBase):
     def read(self) -> bytes:
         """
         Reads from the pipe.
