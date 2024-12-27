@@ -3,6 +3,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TypeVar
 
+from time import sleep
+
+from warnings import warn
+
 
 class NamedPipeBase(ABC):
     """
@@ -98,9 +102,24 @@ class PipeEndBase(ABC):
         """
         return self.close()
 
-    def open(self) -> PipeEndBase:
-        """Open the named pipe in the specified mode."""
-        return self._open(self._named_pipe, self._mode)
+    def open(self, retries: int = 3, delay: float = 0.5) -> PipeEndBase:
+        """
+        Open the named pipe in the specified mode.
+
+        :param retries: The number of retries to open pipe, before failure.
+        :param delay: The delay between consecutive retries to open the pipe.
+        """
+        for i in range(retries):
+            try:
+                return self._open(self._named_pipe, self._mode)
+            except Exception as e:
+                warn(
+                    f"PipeEnd open() attempt {i+1}: Pipe not available: {e}",
+                    UserWarning,
+                )
+                sleep(delay)
+
+        raise OSError(f"PipeEnd {self} not available for opening.")
 
     def close(self) -> None:
         """Close the named pipe."""
