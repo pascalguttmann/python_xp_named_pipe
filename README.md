@@ -133,3 +133,12 @@ from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
 with WritePipeEnd("pipe/path") as my_pipe_end:
   my_pipe_end.write(b"My Data")
 ```
+
+## Testing
+
+Rudimentary testing is performed by pythons `unittest` module. To run the tests
+the following command can be used from the root of this repository:
+
+```bash
+python3 -m unittest ./tests/test_*
+```
