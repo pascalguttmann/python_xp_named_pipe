@@ -8,18 +8,18 @@ class Base64DatagrammeEncoderDecoder:
 
     def __init__(
         self,
-        read_func: Callable[[], bytes],
-        write_func: Callable[[bytes], None],
+        read_func: Callable[[], bytearray],
+        write_func: Callable[[bytearray], None],
     ) -> None:
         self.read_func = read_func
         self.write_func = write_func
         self._datagrammes = []
-        self._partial_enc_datagramme = bytes()
+        self._partial_enc_datagramme = bytearray()
 
-    def _datagrammes_fifo_put(self, datagramme: bytes) -> None:
+    def _datagrammes_fifo_put(self, datagramme: bytearray) -> None:
         self._datagrammes.append(datagramme)
 
-    def _datagrammes_fifo_pop(self) -> bytes:
+    def _datagrammes_fifo_pop(self) -> bytearray:
         return self._datagrammes.pop(0)
 
     def _datagrammes_fifo_is_empty(self) -> bool:
@@ -28,12 +28,12 @@ class Base64DatagrammeEncoderDecoder:
         else:
             return False
 
-    def _set_partial_enc_datagramme(self, datagramme: bytes) -> None:
+    def _set_partial_enc_datagramme(self, datagramme: bytearray) -> None:
         self._partial_enc_datagramme = datagramme
 
-    def _pop_partial_enc_datagramme(self) -> bytes:
+    def _pop_partial_enc_datagramme(self) -> bytearray:
         partial_enc_datagramme = self._partial_enc_datagramme
-        self._set_partial_enc_datagramme(bytes())
+        self._set_partial_enc_datagramme(bytearray())
         return partial_enc_datagramme
 
     def _read_datagrammes_to_fifo(self) -> None:
@@ -49,15 +49,15 @@ class Base64DatagrammeEncoderDecoder:
             del enc_datagrammes[-1]
 
         for enc_dg in enc_datagrammes:
-            dec_dg = bytes(base64.b64decode(enc_dg))
+            dec_dg = bytearray(base64.b64decode(enc_dg))
             self._datagrammes_fifo_put(dec_dg)
         return None
 
-    def write(self, data: bytes) -> None:
-        encoded_data = bytes(base64.b64encode(data))
+    def write(self, data: bytearray) -> None:
+        encoded_data = bytearray(base64.b64encode(data))
         self.write_func(encoded_data + self._delim)
 
-    def read(self) -> bytes:
+    def read(self) -> bytearray:
         while self._datagrammes_fifo_is_empty():
             self._read_datagrammes_to_fifo()
         return self._datagrammes_fifo_pop()

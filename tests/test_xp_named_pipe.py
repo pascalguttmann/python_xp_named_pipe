@@ -31,14 +31,14 @@ class TestXpNamedPipe(unittest.TestCase):
 
 class TestPipeEnd(unittest.TestCase):
     test_pipe_path: str = "the_pipe7"
-    test_data: bytes = bytes(b"this is my data")
+    test_data: bytearray = bytearray(b"this is my data")
 
     @staticmethod
-    def create_writer_process(send: bytes):
+    def create_writer_process(send: bytearray):
         return multiprocessing.Process(target=TestPipeEnd.writer, args=(send,))
 
     @staticmethod
-    def writer(send: bytes):
+    def writer(send: bytearray):
 
         with NamedPipe(TestPipeEnd.test_pipe_path) as pipe:
             with WritePipeEnd(pipe) as pipe_end:

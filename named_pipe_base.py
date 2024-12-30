@@ -178,7 +178,7 @@ class WritePipeEndBase(PipeEndBase):
         return super().__init__(named_pipe, "w")
 
     @abstractmethod
-    def write(self, data: bytes) -> None:
+    def write(self, data: bytearray) -> None:
         """
         Write to the pipe.
 
@@ -205,7 +205,7 @@ class ReadPipeEndBase(PipeEndBase):
         return super().__init__(named_pipe, "r")
 
     @abstractmethod
-    def read(self) -> bytes:
+    def read(self) -> bytearray:
         """
         Read from the pipe.
 

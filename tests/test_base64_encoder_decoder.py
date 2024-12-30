@@ -6,18 +6,18 @@ from base64_encoder_decoder import Base64DatagrammeEncoderDecoder as base64_end_
 
 
 class TestBase64DatagrammeEncoderDecoder(unittest.TestCase):
-    message_1 = b"Hello"
-    message_2 = b"World"
-    message_3 = b"and the rest of the universe."
-    message_1_enc = base64.b64encode(message_1)
-    message_2_enc = base64.b64encode(message_2)
-    message_3_enc = base64.b64encode(message_3)
-    delim = b"\x00"
+    message_1 = bytearray(b"Hello")
+    message_2 = bytearray(b"World")
+    message_3 = bytearray(b"and the rest of the universe.")
+    message_1_enc = bytearray(base64.b64encode(message_1))
+    message_2_enc = bytearray(base64.b64encode(message_2))
+    message_3_enc = bytearray(base64.b64encode(message_3))
+    delim = bytearray(b"\x00")
 
-    def read_mock(self) -> bytes:
+    def read_mock(self) -> bytearray:
         return self.message_1_enc + self.delim
 
-    def read_incomplete_datagramme(self) -> bytes:
+    def read_incomplete_datagramme(self) -> bytearray:
         return (
             self.message_1_enc
             + self.delim
@@ -26,13 +26,13 @@ class TestBase64DatagrammeEncoderDecoder(unittest.TestCase):
             + self.message_3_enc[0:2]
         )
 
-    def read_complete_datagramme(self) -> bytes:
+    def read_complete_datagramme(self) -> bytearray:
         return self.message_1_enc + self.delim + self.message_2_enc + self.delim
 
-    def write_mock(self, data: bytes) -> None:
+    def write_mock(self, data: bytearray) -> None:
         return None
 
-    def write_assert(self, data: bytes, expected: bytes):
+    def write_assert(self, data: bytearray, expected: bytearray):
         self.assertEqual(data, expected)
         return
 
@@ -50,7 +50,7 @@ class TestBase64DatagrammeEncoderDecoder(unittest.TestCase):
         return
 
     def test_write_encoding_and_delim_appended(self):
-        def write_assert_message_2_enc_and_delim(data: bytes):
+        def write_assert_message_2_enc_and_delim(data: bytearray):
             return self.write_assert(data, self.message_2_enc + self.delim)
 
         b64 = base64_end_dec(self.read_mock, write_assert_message_2_enc_and_delim)

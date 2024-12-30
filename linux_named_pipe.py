@@ -66,7 +66,7 @@ class PipeEnd(PipeEndBase):
 
 
 class WritePipeEnd(PipeEnd, WritePipeEndBase):
-    def write(self, data: bytes) -> None:
+    def write(self, data: bytearray) -> None:
         """
         Write to the pipe.
 
@@ -76,7 +76,7 @@ class WritePipeEnd(PipeEnd, WritePipeEndBase):
 
 
 class ReadPipeEnd(PipeEnd, ReadPipeEndBase):
-    def read(self) -> bytes:
+    def read(self) -> bytearray:
         """
         Reads from the pipe.
         """
