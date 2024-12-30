@@ -4,6 +4,8 @@ from typing import Callable
 
 
 class Base64DatagrammeEncoderDecoder:
+    _delim = b"\x00"
+
     def __init__(
         self,
         read_func: Callable[[], bytes],
@@ -36,20 +38,24 @@ class Base64DatagrammeEncoderDecoder:
 
     def _read_datagrammes_to_fifo(self) -> None:
         data = self.read_func()
-        enc_datagrammes = (self._pop_partial_enc_datagramme() + data).split(b"\x00")
+        enc_datagrammes = (
+            (self._pop_partial_enc_datagramme() + data)
+            .rstrip(self._delim)
+            .split(self._delim)
+        )
 
-        if not data.endswith(b"\x00"):
+        if not data.endswith(self._delim):
             self._set_partial_enc_datagramme(enc_datagrammes[-1])
             del enc_datagrammes[-1]
 
         for enc_dg in enc_datagrammes:
-            dec_dg = bytes(base64.b64decode(enc_dg.rstrip(b"\x00")))
+            dec_dg = bytes(base64.b64decode(enc_dg))
             self._datagrammes_fifo_put(dec_dg)
         return None
 
     def write(self, data: bytes) -> None:
         encoded_data = bytes(base64.b64encode(data))
-        self.write_func(encoded_data + b"\x00")
+        self.write_func(encoded_data + self._delim)
 
     def read(self) -> bytes:
         while self._datagrammes_fifo_is_empty():
