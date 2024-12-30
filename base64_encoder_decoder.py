@@ -12,6 +12,7 @@ class Base64DatagrammeEncoderDecoder:
         self.read_func = read_func
         self.write_func = write_func
         self._datagrammes = []
+        self._partial_enc_datagramme = bytes()
 
     def _datagrammes_fifo_put(self, datagramme: bytearray) -> None:
         self._datagrammes.append(datagramme)
