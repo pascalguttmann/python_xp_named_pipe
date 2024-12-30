@@ -11,13 +11,13 @@ Supported platforms:
 - [x] win32
 - [x] linux
 
-# API Description
+## API Description
 
 > [!NOTE]
 > Clone this repository into your project folder and import it from your
 > scripts reproduce the following examples.
 
-## NamedPipe
+### NamedPipe
 
 ```Python
 from xp_named_pipes import NamedPipe
@@ -42,7 +42,7 @@ if the underlying operating system might support bi-directional named pipes.
 > The prefix is handled transparent in this API, but the allocated system
 > resource will have the name: `<prefix>+<API_path>`
 
-### NamedPipe Resource State
+#### NamedPipe Resource State
 
 ```mermaid
 stateDiagram-v2
@@ -58,7 +58,7 @@ stateDiagram-v2
 - Resource allocation on the operating system is performed by calling `mkfifo()`.
 - Resource de-allocation on the operating system is performed by calling `unlink()`.
 
-## ReadPipeEnd & WritePipeEnd
+### ReadPipeEnd & WritePipeEnd
 
 ```Python
 from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
@@ -100,41 +100,7 @@ stateDiagram-v2
   open --> close: close()
 ```
 
-## Context Management Protocol
-
-`NamedPipe`, `ReadPipeEnd` and `WritePipeEnd` support pythons context
-management protocol and can be used with the `with` statement.
-
-```Python
-from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
-
-with NamedPipe("pipe/path") as my_pipe: # automatic (de)allocation of system resources
-  with ReadPipeEnd(my_pipe) as my_pipe_end: # automatic open/close of PipeEnd
-    print(my_pipe_end.read())
-```
-
-## Convenience PipeEnd Creation
-
-A `PipeEnd` (either `ReadPipeEnd` or `WritePipeEnd`) is created by specifying
-the `NamedPipe` for which the `PipeEnd` should be created. When a `PipeEnd` is
-created on a "client" side (which does not manage the system resources) it is
-not required to have access to the `NamedPipe` methods `mkfifo()` and
-`unlink()`.
-
-The `PipeEnd` can be created with a specification of the `NamedPipe` as a
-string instead of an instance of `class NamedPipe`. Operating system resources
-are not allocated and cannot be controlled in this context.
-
-`WritePipeEnd("path")` is equivalent to `WritePipeEnd(NamedPipe("path"))`.
-
-```Python
-from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
-
-with WritePipeEnd("pipe/path") as my_pipe_end:
-  my_pipe_end.write(b"My Data")
-```
-
-## Encoded Datagramme Support
+### Encoded Datagramme Support
 
 The cross platform pipes transfer bytes and the usage of those bytes to
 transfer meaningful messages is up to the user. Some operating systems might
@@ -159,6 +125,40 @@ with NamedPipe("pipe/path") as pipe:
     )
 
     b64_write.write(b"This message is encoded and written to 'pipe/path' with a delimiter suffix")
+```
+
+### Context Management Protocol
+
+`NamedPipe`, `ReadPipeEnd` and `WritePipeEnd` support pythons context
+management protocol and can be used with the `with` statement.
+
+```Python
+from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
+
+with NamedPipe("pipe/path") as my_pipe: # automatic (de)allocation of system resources
+  with ReadPipeEnd(my_pipe) as my_pipe_end: # automatic open/close of PipeEnd
+    print(my_pipe_end.read())
+```
+
+### Convenience PipeEnd Creation
+
+A `PipeEnd` (either `ReadPipeEnd` or `WritePipeEnd`) is created by specifying
+the `NamedPipe` for which the `PipeEnd` should be created. When a `PipeEnd` is
+created on a "client" side (which does not manage the system resources) it is
+not required to have access to the `NamedPipe` methods `mkfifo()` and
+`unlink()`.
+
+The `PipeEnd` can be created with a specification of the `NamedPipe` as a
+string instead of an instance of `class NamedPipe`. Operating system resources
+are not allocated and cannot be controlled in this context.
+
+`WritePipeEnd("path")` is equivalent to `WritePipeEnd(NamedPipe("path"))`.
+
+```Python
+from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
+
+with WritePipeEnd("pipe/path") as my_pipe_end:
+  my_pipe_end.write(b"My Data")
 ```
 
 ## Testing
