@@ -26,6 +26,9 @@ class TestBase64DatagrammeEncoderDecoder(unittest.TestCase):
             + self.message_3_enc[0:2]
         )
 
+    def read_complete_datagramme(self) -> bytes:
+        return self.message_1_enc + self.delim + self.message_2_enc + self.delim
+
     def write_mock(self, data: bytes) -> None:
         return None
 
@@ -52,4 +55,12 @@ class TestBase64DatagrammeEncoderDecoder(unittest.TestCase):
 
         b64 = base64_end_dec(self.read_mock, write_assert_message_2_enc_and_delim)
         b64.write(self.message_2)
+        return
+
+    def test_read_fifo(self):
+        b64 = base64_end_dec(self.read_complete_datagramme, self.write_mock)
+        message_1_actual = b64.read()
+        print(f"{b64._datagrammes=}")
+        self.assertEqual(len(b64._datagrammes), 1)
+        self.assertEqual(b64._datagrammes[0], self.message_2)
         return
