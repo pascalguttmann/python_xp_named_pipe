@@ -11,13 +11,13 @@ Supported platforms:
 - [x] win32
 - [x] linux
 
-# API Description
+## API Description
 
 > [!NOTE]
 > Clone this repository into your project folder and import it from your
 > scripts reproduce the following examples.
 
-## NamedPipe
+### NamedPipe
 
 ```Python
 from xp_named_pipes import NamedPipe
@@ -42,7 +42,7 @@ if the underlying operating system might support bi-directional named pipes.
 > The prefix is handled transparent in this API, but the allocated system
 > resource will have the name: `<prefix>+<API_path>`
 
-### NamedPipe Resource State
+#### NamedPipe Resource State
 
 ```mermaid
 stateDiagram-v2
@@ -58,7 +58,7 @@ stateDiagram-v2
 - Resource allocation on the operating system is performed by calling `mkfifo()`.
 - Resource de-allocation on the operating system is performed by calling `unlink()`.
 
-## ReadPipeEnd & WritePipeEnd
+### ReadPipeEnd & WritePipeEnd
 
 ```Python
 from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
@@ -100,7 +100,34 @@ stateDiagram-v2
   open --> close: close()
 ```
 
-## Context Management Protocol
+### Encoded Datagramme Support
+
+The cross platform pipes transfer bytes and the usage of those bytes to
+transfer meaningful messages is up to the user. Some operating systems might
+not guarantee a complete write (including a flush of possible buffers) on
+write. To ease the use to transfer entire messages in a controlled manner the
+class `Base64DatagrammeEncoderDecoder` provides an easy way to encode messages
+as a `datagramme`. A `datagramme` is the message encoded as Base64 and an
+appended delimiter byte `0x00` to delimit individual `datagramme`s. The
+`Base64DatagrammeEncoderDecoder` ensures that each `write` corresponds to a
+single `read` operation and takes care of handling incomplete transfers of
+`datagramme`s by buffering them transparently in an internal buffer.
+
+```Python
+from xp_named_pipe import NamedPipe, ReadPipeEnd, WritePipeEnd
+from xp_named_pipe.base64_encoder_decoder import Base64DatagrammeEncoderDecoder as B64
+
+with NamedPipe("pipe/path") as pipe:
+  with WritePipeEnd(pipe) as write_pipe_end:
+    b64_write = B64(
+        read_func=write_pipe_end.read(),
+        write_func=write_pipe_end.write(),
+    )
+
+    b64_write.write(b"This message is encoded and written to 'pipe/path' with a delimiter suffix")
+```
+
+### Context Management Protocol
 
 `NamedPipe`, `ReadPipeEnd` and `WritePipeEnd` support pythons context
 management protocol and can be used with the `with` statement.
@@ -113,7 +140,7 @@ with NamedPipe("pipe/path") as my_pipe: # automatic (de)allocation of system res
     print(my_pipe_end.read())
 ```
 
-## Convenience PipeEnd Creation
+### Convenience PipeEnd Creation
 
 A `PipeEnd` (either `ReadPipeEnd` or `WritePipeEnd`) is created by specifying
 the `NamedPipe` for which the `PipeEnd` should be created. When a `PipeEnd` is
@@ -132,4 +159,13 @@ from xp_named_pipes import NamedPipe, ReadPipeEnd, WritePipeEnd
 
 with WritePipeEnd("pipe/path") as my_pipe_end:
   my_pipe_end.write(b"My Data")
+```
+
+## Testing
+
+Rudimentary testing is performed by pythons `unittest` module. To run the tests
+the following command can be used from the root of this repository:
+
+```bash
+python3 -m unittest ./tests/test_*
 ```

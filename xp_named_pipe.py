@@ -10,6 +10,5 @@ else:
     raise NotImplementedError
 
 NamedPipe = xpnp.NamedPipe
-# PipeEnd = xpnp.PipeEnd
 WritePipeEnd = xpnp.WritePipeEnd
 ReadPipeEnd = xpnp.ReadPipeEnd
