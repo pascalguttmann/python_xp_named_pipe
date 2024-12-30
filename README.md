@@ -134,6 +134,33 @@ with WritePipeEnd("pipe/path") as my_pipe_end:
   my_pipe_end.write(b"My Data")
 ```
 
+## Encoded Datagramme Support
+
+The cross platform pipes transfer bytes and the usage of those bytes to
+transfer meaningful messages is up to the user. Some operating systems might
+not guarantee a complete write (including a flush of possible buffers) on
+write. To ease the use to transfer entire messages in a controlled manner the
+class `Base64DatagrammeEncoderDecoder` provides an easy way to encode messages
+as a `datagramme`. A `datagramme` is the message encoded as Base64 and an
+appended delimiter byte `0x00` to delimit individual `datagramme`s. The
+`Base64DatagrammeEncoderDecoder` ensures that each `write` corresponds to a
+single `read` operation and takes care of handling incomplete transfers of
+`datagramme`s by buffering them transparently in an internal buffer.
+
+```Python
+from xp_named_pipe import NamedPipe, ReadPipeEnd, WritePipeEnd
+from xp_named_pipe.base64_encoder_decoder import Base64DatagrammeEncoderDecoder as B64
+
+with NamedPipe("pipe/path") as pipe:
+  with WritePipeEnd(pipe) as write_pipe_end:
+    b64_write = B64(
+        read_func=write_pipe_end.read(),
+        write_func=write_pipe_end.write(),
+    )
+
+    b64_write.write(b"This message is encoded and written to 'pipe/path' with a delimiter suffix")
+```
+
 ## Testing
 
 Rudimentary testing is performed by pythons `unittest` module. To run the tests
