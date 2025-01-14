@@ -60,7 +60,6 @@ class TestBase64DatagrammeEncoderDecoder(unittest.TestCase):
     def test_read_fifo(self):
         b64 = base64_end_dec(self.read_complete_datagramme, self.write_mock)
         message_1_actual = b64.read()
-        print(f"{b64._datagrammes=}")
         self.assertEqual(len(b64._datagrammes), 1)
         self.assertEqual(b64._datagrammes[0], self.message_2)
         return
