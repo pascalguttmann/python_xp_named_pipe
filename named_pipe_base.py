@@ -113,10 +113,6 @@ class PipeEndBase(ABC):
             try:
                 return self._open(self._named_pipe, self._mode)
             except Exception as e:
-                warn(
-                    f"PipeEnd open() attempt {i+1}: Pipe not available: {e}",
-                    UserWarning,
-                )
                 sleep(delay)
 
         raise OSError(f"PipeEnd {self} not available for opening.")
